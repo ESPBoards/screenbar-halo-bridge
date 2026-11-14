@@ -1,5 +1,5 @@
-# Host tests only: the S3 firmware needs a pinned ESP-IDF master commit that
-# no CI image ships.
+# The S3 firmware isn't built here: it needs a pinned ESP-IDF master commit
+# that no CI image ships.
 name: test
 
 on: [push, pull_request]
@@ -14,7 +14,31 @@ jobs:
       matrix:
         cc: [gcc, clang]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - run: make test CC=${{ matrix.cc }}
       - run: make replay CC=${{ matrix.cc }}
       - run: python3 -m py_compile tools/wire.py
+
+  # The host tests never build the ESPHome component's C++.
+  c3:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      # ESPHome's own ESP-IDF, ~2.6 GB: downloading it takes longer than the build.
+      - uses: actions/cache@v6
+        with:
+          path: ~/.cache/esphome
+          key: esphome-2026.9.0-${{ runner.os }}
+      - run: pip install esphome==2026.9.0
+      - name: Throwaway secrets
+        run: |
+          cat > esphome/secrets.yaml <<EOF
+          wifi_ssid: "ci"
+          wifi_password: "ci-password"
+          api_key: "$(openssl rand -base64 32)"
+          ota_password: "ci-password"
+          EOF
+      - run: esphome compile esphome/halo-bridge.yaml
