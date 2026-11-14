@@ -1,6 +1,8 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* Gap-free capture with the ADC's ring mode. Ours, not esp-sdr's: we found it
- * by filling the banks with markers and watching where the ADC wrote.
+/* Gap-free capture with the ADC's ring mode, which esp-sdr and esp-sdr-zephyr
+ * document too; we found it on our own by filling the banks with markers. Ours
+ * is the timing: each bank flip comes from the cycle counter, not a write
+ * index, with markers in the tail to find where it lands.
  */
 #include "phy_s3.h"
 #include "phy_s3_hw.h"

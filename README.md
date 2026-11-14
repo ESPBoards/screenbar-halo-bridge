@@ -177,10 +177,10 @@ Each light (`platform: halo_bridge` under `light:`) takes `zone: front` or
   [Credits](#credits). The link isn't encrypted, so nothing is bypassed.
 - Use at your own risk; there is no warranty (see [LICENSE](LICENSE)).
 - The S3 drives its radio through private, undocumented PHY functions. The
-  esp-sdr authors warn this "may permanently alter the radio's analog
-  characteristics", and it means the module's radio certification may not
-  cover this use. Follow your local radio rules, and use the lowest transmit
-  power that works.
+  esp-sdr-zephyr and halo-esp32s3 authors warn this "may permanently alter the
+  radio's analog characteristics", and it means the module's radio
+  certification may not cover this use. Follow your local radio rules, and use
+  the lowest transmit power that works.
 
 ## Development
 
@@ -242,6 +242,9 @@ The S3 radio code stands on others' reverse engineering:
 - [Djoko-cli/benq-screenbar-halo-matter](https://github.com/Djoko-cli/benq-screenbar-halo-matter):
   first documented the Halo 1 frame format. Only protocol facts are used,
   checked against our own captures; no code or text is copied.
+
+esp-sdr and esp-sdr-zephyr also document the ADC's ring (circular) capture
+mode, which we found on our own; the cycle-timed bank flips are ours.
 
 ## License
 
