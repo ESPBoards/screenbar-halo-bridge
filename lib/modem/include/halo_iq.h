@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+#define HALO_IQ_MASK 0xfffffu   /* bits 19..0; the ADC sets other bits in its words too */
+
 /* No clipping here: the ADC can't exceed the range and TX stays at amplitude 128. */
 static inline uint32_t halo_iq_pack(int i, int q)
 {

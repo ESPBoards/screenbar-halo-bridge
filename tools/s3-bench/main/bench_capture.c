@@ -38,7 +38,7 @@ static void dump(const uint32_t *raw, unsigned id)
     printf("RAW %u\n", id);
     for (size_t j = 0; j < PHY_S3_CAPTURE_SAMPLES; j += 16) {
         for (size_t k = j; k < j + 16 && k < PHY_S3_CAPTURE_SAMPLES; k++) {
-            printf("%05lx", (unsigned long)raw[k]);
+            printf("%05lx", (unsigned long)(raw[k] & HALO_IQ_MASK));   /* replay reads 5 digits a word */
         }
         printf("\n");
     }
