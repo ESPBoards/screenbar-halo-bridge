@@ -1,0 +1,24 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+max_line_length = 120
+
+[Makefile]
+indent_style = tab
+
+# ESPHome's own C++ style; the synced lib/ copies next to it keep lib's 4 spaces
+[esphome/components/halo_bridge/{*.cpp,halo_bridge.h,halo_light.h,halo_wire_link.h}]
+indent_size = 2
+
+[*.{yml,yaml}]
+indent_size = 2
+
+# tables don't wrap
+[*.md]
+max_line_length = off

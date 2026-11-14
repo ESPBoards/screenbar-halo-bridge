@@ -1,0 +1,13 @@
+build-host/
+s3/build*/
+s3/sdkconfig
+s3/sdkconfig.old
+tools/s3-bench/main/bench_local.h
+tools/s3-bench/build/
+tools/s3-bench/sdkconfig
+tools/s3-bench/sdkconfig.old
+esphome/secrets.yaml
+esphome/.esphome/
+__pycache__/
+.DS_Store
+esphome/.gitignore

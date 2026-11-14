@@ -1,0 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Layered on s3/sdkconfig.defaults.
+
+# Per-task CPU time, to see what core 0 really spends on the listener.
+CONFIG_FREERTOS_USE_TRACE_FACILITY=y
+CONFIG_FREERTOS_GENERATE_RUN_TIME_STATS=y

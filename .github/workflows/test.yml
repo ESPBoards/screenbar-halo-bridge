@@ -1,0 +1,20 @@
+# Host tests only: the S3 firmware needs a pinned ESP-IDF master commit that
+# no CI image ships.
+name: test
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  host:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        cc: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - run: make test CC=${{ matrix.cc }}
+      - run: make replay CC=${{ matrix.cc }}
+      - run: python3 -m py_compile tools/wire.py

@@ -1,0 +1,77 @@
+# ESP32-C3 running ESPHome, wired to the ESP32-S3 radio:
+#   C3 GPIO8 (TX) -> S3 GPIO2 (RX)
+#   C3 GPIO7 (RX) <- S3 GPIO1 (TX)
+#   5V -- 5V and GND -- GND; one USB cable at a time, either board powers both
+esphome:
+  name: halo-bridge
+  friendly_name: Halo bridge
+
+esp32:
+  board: esp32-c3-devkitm-1
+  framework:
+    type: esp-idf
+
+external_components:
+  - source:
+      type: local
+      path: components
+  # Without a copy of this repo, pull the component from GitHub instead:
+  # - source:
+  #     type: git
+  #     url: https://github.com/ESPBoards/screenbar-halo-bridge
+  #     path: esphome/components
+  #   components: [halo_bridge]
+
+logger:
+api:
+  encryption:
+    key: !secret api_key
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  # For cheap C3 boards that garble the handshake at full power: the network
+  # shows up strong, then authentication fails. Others can drop this line.
+  output_power: 8.5dB
+
+uart:
+  id: radio_uart
+  # GPIO8 is a strapping pin, but fine as UART TX (ESPHome may warn about it).
+  # It's also the blue LED: it flickers with traffic.
+  tx_pin: GPIO8
+  rx_pin: GPIO7
+  baud_rate: 115200
+
+halo_bridge:
+  uart_id: radio_uart
+  # reset_pin: GPIO5      # wired to S3 EN, on boards that have that pin
+  # address: 0x1A2B3C4D   # optional; press "Pair remote" instead
+  # Hear the remote so HA follows it. Off saves ~0.2 W, but HA is then wrong
+  # after remote use until its next command. Pairing listens either way.
+  listen: true
+  # gain: 4            # radio TX gain, 0-10; raise it if the lamp is far away
+  # retry_gain: 6      # used once the first attempts went unanswered
+  # max_attempts: 5    # tries per change before giving up
+  status:
+    name: Radio status
+  online:
+    name: Radio online
+  pair:
+    name: Pair remote
+
+light:
+  - platform: halo_bridge
+    name: Front
+    zone: front
+  - platform: halo_bridge
+    name: Back
+    zone: back
+
+sensor:
+  - platform: wifi_signal
+    name: WiFi signal
+    update_interval: 60s
+    entity_category: diagnostic

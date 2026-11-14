@@ -1,0 +1,3 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Layered on sdkconfig.defaults for the USB build, where a PC stands in for the C3.
+CONFIG_HALO_BRIDGE_USB=y

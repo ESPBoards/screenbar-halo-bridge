@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: GPL-3.0-only
+menu "Halo bridge"
+
+    choice HALO_BRIDGE_LINK
+        prompt "Link to the C3"
+        default HALO_BRIDGE_UART
+
+        config HALO_BRIDGE_UART
+            bool "UART1"
+
+        config HALO_BRIDGE_USB
+            bool "USB Serial/JTAG"
+            help
+                The bridge protocol over the S3's own USB port, so a PC can
+                stand in for the C3. App logs are turned off, since the port is
+                the protocol's; boot and panic output still appear on it.
+    endchoice
+
+    config HALO_BRIDGE_UART_TX
+        int "UART TX GPIO"
+        depends on HALO_BRIDGE_UART
+        range 0 48
+        default 1
+        help
+            Edge pins on the S3 Super Mini. Avoid 43/44 (the ROM prints its
+            boot text there), 19/20 (USB), 26-32 (flash) and 22-25, which
+            the S3 doesn't have.
+
+    config HALO_BRIDGE_UART_RX
+        int "UART RX GPIO"
+        depends on HALO_BRIDGE_UART
+        range 0 48
+        default 2
+        help
+            Same pins to avoid as for TX, and not the TX pin itself.
+
+endmenu
