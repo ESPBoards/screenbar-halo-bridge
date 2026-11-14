@@ -63,59 +63,76 @@ No reset wire is needed: the S3 restarts itself if it hangs.
 
 ## Prerequisites
 
-- **ESP-IDF at exactly commit `25fe69f946`** (master, `v6.1-dev-6376`). The
-  radio code calls private PHY functions that only exist in this build;
-  another version can fail silently.
-
-  ```sh
-  git clone https://github.com/espressif/esp-idf ~/esp/esp-idf-halo
-  cd ~/esp/esp-idf-halo
-  git checkout 25fe69f946311abdaf9ad56591f25fedbc20ac98
-  git submodule update --init --recursive
-  ./install.sh esp32s3
-  . ./export.sh
-  ```
-
-  On Windows, run `install.bat esp32s3` and `export.bat` instead.
-
+- **esptool** to flash the S3: `pip install esptool`.
 - **ESPHome** for the C3 (tested with 2026.9).
+- This repository, at the same release as the S3 image:
+  `git clone --branch v1.0.0 https://github.com/ESPBoards/screenbar-halo-bridge`
 
 ## Build and flash
 
 Run each block from the repository root.
 
-1. **The S3**, over its USB port, in a shell where ESP-IDF's `export.sh` has
-   run:
+1. **The S3**: download `screenbar-halo-bridge-s3-v1.0.0.bin` from the
+   [v1.0.0 release](https://github.com/ESPBoards/screenbar-halo-bridge/releases/tag/v1.0.0)
+   and flash it over the S3's USB port:
+
+   ```sh
+   esptool --chip esp32s3 -p PORT --before usb-reset write-flash 0x0 screenbar-halo-bridge-s3-v1.0.0.bin
+   ```
+
+   `PORT` is the S3's serial port: `/dev/cu.usbmodem…` on macOS,
+   `/dev/ttyACM…` on Linux, `COM…` on Windows. `--before usb-reset` also
+   works with the C3 soldered on, where the normal reset into the bootloader
+   fails.
+
+   <details>
+   <summary><b>Build the S3 from source instead</b></summary>
+
+   You need **ESP-IDF at exactly commit `25fe69f946`** (master,
+   `v6.1-dev-6376`). The radio code calls private PHY functions that only
+   exist in this build; another version can fail silently.
+
+   ```sh
+   git clone https://github.com/espressif/esp-idf ~/esp/esp-idf-halo
+   cd ~/esp/esp-idf-halo
+   git checkout 25fe69f946311abdaf9ad56591f25fedbc20ac98
+   git submodule update --init --recursive
+   ./install.sh esp32s3
+   . ./export.sh
+   ```
+
+   On Windows, run `install.bat esp32s3` and `export.bat` instead. Then, in
+   that shell, from the repository root:
 
    ```sh
    (cd s3 && idf.py build flash)
    ```
 
-   It talks to the C3 on UART1, TX GPIO1 and RX GPIO2 at 115200 baud; other
-   pins can be set under Halo bridge in `(cd s3 && idf.py menuconfig)`.
-
-   With the C3 already soldered on, the normal reset into the bootloader
-   fails; use the S3's USB reset instead:
+   With the C3 soldered on, flash with the USB reset instead:
 
    ```sh
    (cd s3/build && esptool --chip esp32s3 -p PORT --before usb-reset write-flash @flash_args)
    ```
 
-   `PORT` is the S3's serial port: `/dev/cu.usbmodem…` on macOS,
-   `/dev/ttyACM…` on Linux, `COM…` on Windows.
+   The S3 talks to the C3 on UART1, TX GPIO1 and RX GPIO2 at 115200 baud;
+   other pins can be set under Halo bridge in `(cd s3 && idf.py menuconfig)`.
 
-2. **The C3**: copy `esphome/secrets.example.yaml` to `esphome/secrets.yaml`
-   and fill it in (`openssl rand -base64 32` makes an API key). The first
-   flash goes over USB, later ones over Wi-Fi. Use a shell where `export.sh`
-   hasn't run, or ESPHome picks up the wrong IDF.
+   </details>
+
+2. **The C3**, from the same release as the S3 (a mismatch shows "radio
+   firmware mismatch"): copy `esphome/secrets.example.yaml` to
+   `esphome/secrets.yaml` and fill it in (`openssl rand -base64 32` makes an
+   API key). The first flash goes over USB, later ones over Wi-Fi. If you
+   built the S3 from source, use a shell where `export.sh` hasn't run, or
+   ESPHome picks up the wrong IDF.
 
    ```sh
    (cd esphome && esphome run halo-bridge.yaml)
    ```
 
    Using Home Assistant's ESPHome add-on? Copy the YAML there, switch
-   `external_components` to the commented GitHub source, and add the keys
-   from `secrets.example.yaml` to its secrets.
+   `external_components` to the commented GitHub source (pinned to the same
+   release), and add the keys from `secrets.example.yaml` to its secrets.
 
 3. **Pair**: Home Assistant finds the new ESPHome device by itself; add it and
    paste the `api_key` from your `secrets.yaml` when asked. Then press
