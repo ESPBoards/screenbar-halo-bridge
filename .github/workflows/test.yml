@@ -14,7 +14,7 @@ jobs:
       matrix:
         cc: [gcc, clang]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: make test CC=${{ matrix.cc }}
       - run: make replay CC=${{ matrix.cc }}
       - run: python3 -m py_compile tools/wire.py
